@@ -6,9 +6,9 @@
 ![参数详情](https://github.com/qq840093270/study/blob/master/common/images/ifcfg-ens33.png)
 
 ##linux重启网关指令
-1. systemctl stop NetworkManager
-   systemctl disable NetworkManager
-   systemctl start NetworkManager
+1. systemctl stop NetworkManager  
+   systemctl disable NetworkManager  
+   systemctl start NetworkManager  
 2. systemctl start network.service
 3. service network restart
 
