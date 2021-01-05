@@ -14,10 +14,10 @@
 > IPV6_DEFROUTE="yes"	#IPV6是否可以为默认路由：是（现在还未用到IPV6，不会有任何影响）  
 > IPV6_FAILURE_FATAL="no"		#是否开启IPV6致命错误检测  
 > IPV6_ADDR_GEN_MODE="stable-privacy"	#IPV6地址生成模型  
-> NAME="ens33"		#网卡物理设备名称  
-> UUID="ab60d501-535b-49f5-a76b-3336a4120f64"#通用唯一识别码，每一个网卡都会有，不能重复，否则两台linux机器只有一台可上网  
-> DEVICE="ens33"		#网卡设备名称，必须和‘NAME’值一样
-> ONBOOT="yes"		#是否开机启动，要想网卡开机就启动或通过 `systemctl restart network`控制网卡,必须设置为 `yes`  
+> NAME="ens33"		#网卡物理设备名称    
+> UUID="ab60d501-535b-49f5-a76b-3336a4120f64"#通用唯一识别码，每一个网卡都会有，不能重复，否则两台linux机器只有一台可上网    
+> DEVICE="ens33"		#网卡设备名称，必须和‘NAME’值一样  
+> ONBOOT="yes"		#是否开机启动，要想网卡开机就启动或通过 `systemctl restart network`控制网卡,必须设置为 `yes`    
 > IPADDR=192.168.137.129		# 本机IP  
 > NETMASK=255.255.255.0		#子网掩码  
 > GATEWAY=192.168.137.2		#默认网关  
