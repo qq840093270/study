@@ -1,21 +1,21 @@
-#Hadoop是什么
-Hadoop是apache 下面的一套开源软件平台
-Hadoop的功能：利用服务器的集群，根据用户的业务逻辑对海里信息进行处理（存储与计算）
-Hadoop的核心组件:
-  HDFS(分布式文件系统)
-  MAPREDUCE(分布式运行系统)
-  YARN(运算资源调度系统)
-  
-#Hadoop特点
-1.hdfs里的文件是分块（block）存储的，默认大小是128M
-2.hdfs使用统一的抽象目录树管理文件，客户端不需要关心具体的文件分块
- 例如：hdfs://hadoop01:port/path1/path2/file
-3.抽象目录树以及分块的信息由namenode节点管理
-4.具体的block存储在每一个节点上，并且每一个block可以有多个副本（dfs.replication）
-5.Hdfs适合设计成一次写入多次读取的情况，不支持修改
+# Hadoop是什么
+Hadoop是apache 下面的一套开源软件平台  
+Hadoop的功能：利用服务器的集群，根据用户的业务逻辑对海里信息进行处理（存储与计算）  
+Hadoop的核心组件:  
+  HDFS(分布式文件系统)  
+  MAPREDUCE(分布式运行系统)  
+  YARN(运算资源调度系统)  
+   
+# Hadoop特点
+1.hdfs里的文件是分块（block）存储的，默认大小是128M  
+2.hdfs使用统一的抽象目录树管理文件，客户端不需要关心具体的文件分块  
+ 例如：hdfs://hadoop01:port/path1/path2/file  
+3.抽象目录树以及分块的信息由namenode节点管理  
+4.具体的block存储在每一个节点上，并且每一个block可以有多个副本（dfs.replication）  
+5.Hdfs适合设计成一次写入多次读取的情况，不支持修改  
 
-#Hadoop写流程
-![Image text](/images/图片1.png)
+# Hadoop写流程
+![HDFS的写数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E5%86%99%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)
 1. 客户端使用 FIleSystem 上传 
 2. FIleSystem 与 namenode 进行通信，nn 会检查自己维护得目录树，判断当前目录是否存 在 
 3. 当 namenode 正确返回后，客户端再向 namenode 请求上传第一个 block,namenode 确认 datanode 的状态，
@@ -25,25 +25,25 @@ Hadoop的核心组件:
    所以你可以把 packet 又理解成 chunk 的集合 
 5. 每个 datenode 写完个 block 后再返回确认信息 
 6. 所有写完了，关闭输出流 
-7. 整个完成后最后通知 namdenode 完成数据上传
-总结：1个block（块，默认128M） 会分成多个packet（包，默认64KB）,会分成多个chunk（默认512b）
+7. 整个完成后最后通知 namdenode 完成数据上传  
+总结：1个block（块，默认128M） 会分成多个packet（包，默认64KB）,会分成多个chunk（默认512b）  
 
-#Hadoop读流程
-![Image text](/images/图片2.png)
-1.client 访问 NameNode，查询元数据信息，获得这个文件的数据块位置列表，返回输入流 对象。 
-2.就近挑选一台 datanode 服务器，请求建立输入流 
-3.DataNode 向输入流中中写数据，以 packet 为单位 
-4.关闭输入
+# Hadoop读流程
+![HDFS的读数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E8%AF%BB%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)
+1. client 访问 NameNode，查询元数据信息，获得这个文件的数据块位置列表，返回输入流 对象。 
+2. 就近挑选一台 datanode 服务器，请求建立输入流 
+3. DataNode 向输入流中中写数据，以 packet 为单位 
+4. 关闭输入
 
-#Hadoop 元数据管理
+# Hadoop 元数据管理
 hdfs 的读写流程都离不开 namenode，在 namenode 维护了文件、文件块的信息，这些信息 统统称之为元数据
 
 元数据在 hdfs 中有 3 种存在形式 
 1. 存在内存中，这个最全的元数据 
 2. fsimage 磁盘元数据镜像文件 
-3. 最新的操作日志文件
+3. 最新的操作日志文件 
 
-内存的数据=fsimage+edits 文件
+内存的数据=fsimage+edits 文件  
 
 ![Image text](/images/图片3.png)
 cd/soft/data/tmp/dfs/name/current hdfsoev-iedits_0000000000000001913-0000000000000001959-oedits.xml hdfsoiv-ifsimage_0000000000000001972-pXML-ofsimage.xml
@@ -76,7 +76,7 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 1. MRAppMaster：负责整个程序的过程调度及状态协调 
 2. mapTask：负责 map 阶段的整个数据处理流程
 3. ReduceTask：负责 reduce 阶段的整个数据处理流程
-![job工作机制](/images/工作机制.jpg)
+![job工作机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.jpg)
 1 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
 2、 maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
   a) 利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
