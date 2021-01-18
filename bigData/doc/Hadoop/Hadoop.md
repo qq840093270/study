@@ -26,7 +26,7 @@ Hadoop的核心组件:
 5. 每个 datenode 写完个 block 后再返回确认信息 
 6. 所有写完了，关闭输出流 
 7. 整个完成后最后通知 namdenode 完成数据上传
-
+总结：1个block（块，默认128M） 会分成多个packet（包，默认64KB）,会分成多个chunk（默认512b）
 
 #Hadoop读流程
 ![Image text](/images/图片2.png)
@@ -51,7 +51,7 @@ cd/soft/data/tmp/dfs/name/current hdfsoev-iedits_0000000000000001913-00000000000
 当达到某个条件后，secondary namenode 会把 namenode 上保存的 edits 和最新的 fsimage 下载到本地，
 并把这些 edits 和 fsimage 进行合并，产生新的 fsimage，这整个过程把他称作checkpoint。
 
-http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/ hdfs-default.xml
+
 
 dfs.namenode.checkpoint.check.period=60#检查触发条件是否满足的频率，60 秒 
 dfs.namenode.checkpoint.dir=file://${hadoop.tmp.dir}/dfs/namesecondary 
@@ -71,15 +71,35 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 5. NameNode 重新命名 fsimage.ckpt 为 fsimage 替换旧的 fsimage 文件，同时将 edits.new 替 换 edits 文件，
    通过这个过程 edits 文件就变小了
 
-#Hadoop mapreduce工作流程
+# Hadoop mapreduce工作流程
+一个完整的 mapreduce 程序在分布式运行时有三类实例进程： 
+1. MRAppMaster：负责整个程序的过程调度及状态协调 
+2. mapTask：负责 map 阶段的整个数据处理流程
+3. ReduceTask：负责 reduce 阶段的整个数据处理流程
+![job工作机制](/images/工作机制.jpg)
+1 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
+2、 maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
+  a) 利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
+  b) 将输入 KV 对传递给客户定义的 map()方法，做逻辑运算，并将 map()方法输出的 KV 对收集到缓存 
+  c) 将缓存中的 KV 对按照 K 分区排序后不断溢写到磁盘文件 
+3、 MRAppMaster 监控到所有 maptask 进程任务完成之后，会根据客户指定的参数启动相应 数量的 reducetask 进程，并告知 reducetask 进程要处理的数据范围（数据分区） 
+4、 Reducetask 进程启动之后，根据 MRAppMaster 告知的待处理数据所在位置，从若干台 maptask 运行所在机器上获取到若干个 maptask 输出结果文件，并在本地进行重新归并 排序，然后按照相同 key 的 KV 为一个组，调用客户定义的 reduce()方法进行逻辑运算， 并收集运算输出的结果 KV，然后调用客户指定的 outputformat 将结果数据输出到外部存储
 
+# 提交任务流程与 Shuffle 流程
+1. maptask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中 
+2. 从内存缓冲区不断溢出本地磁盘文件，可能会溢出多个文件 
+3. 多个溢出文件会被合并成大的溢出文件 
+4. 在溢出过程中，及合并 Combine 的过程中，都要调用 partitoner 进行分组和针对 key 进行排序(compare) 
+5. reducetask 根据自己的分区号，去各个 maptask 机器上取相应的结果分区数据 
+6. reducetask 会取到同一个分区的来自不同 maptask 的结果文件，reducetask 会将这些 文件再进行合并（归并排序） 
+7. 合并成大文件后，shuffle 的过程也就结束了，后面进入 reducetask 的逻辑运算过程 （从文件中取出一个一个的键值对 group，调用用户自定义的 reduce()方法） 
+8. 缓冲区的大小可以通过参数调整, 参数：[mapreduce.task.io.sort.mb] 默认 100M 
+[mapreduce.task.io.sort.mb]: http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-m apreduce-client-core/mapred-default.xml
 
-
-
-#Hadoop mapreduce切片机制
+# Hadoop mapreduce切片机制
 ![Image text](/images/图片5.png)
 切片机制（将待处理数据执行逻辑切片（即按照一个特定切片大小，将待处理数据划分成逻辑上的多个split，
          然后每一个split分配一个map(mapTask)并行实例处理　
          map个数：由任务切片spilt决定的，默认情况下一个split的大小就是block参与任务的文件个数决定的）
 
-正常情况下，你不设置切片大小的时候，默认切片与 块 的大小是相同的。
+正常情况下，你不设置切片大小的时候，默认切片与 块 的大小是相同的。  
