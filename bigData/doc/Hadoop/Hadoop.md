@@ -77,13 +77,13 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 2. mapTask：负责 map 阶段的整个数据处理流程
 3. ReduceTask：负责 reduce 阶段的整个数据处理流程
 ![job工作机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.jpg)  
-1 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
-2、 maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
-  a) 利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
-  b) 将输入 KV 对传递给客户定义的 map()方法，做逻辑运算，并将 map()方法输出的 KV 对收集到缓存 
-  c) 将缓存中的 KV 对按照 K 分区排序后不断溢写到磁盘文件 
-3、 MRAppMaster 监控到所有 maptask 进程任务完成之后，会根据客户指定的参数启动相应 数量的 reducetask 进程，并告知 reducetask 进程要处理的数据范围（数据分区） 
-4、 Reducetask 进程启动之后，根据 MRAppMaster 告知的待处理数据所在位置，从若干台 maptask 运行所在机器上获取到若干个 maptask 输出结果文件，并在本地进行重新归并 排序，然后按照相同 key 的 KV 为一个组，调用客户定义的 reduce()方法进行逻辑运算， 并收集运算输出的结果 KV，然后调用客户指定的 outputformat 将结果数据输出到外部存储
+>1. 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
+>2. maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
+>  a).  利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
+>  b).  将输入 KV 对传递给客户定义的 map()方法，做逻辑运算，并将 map()方法输出的 KV 对收集到缓存 
+>  c).  将缓存中的 KV 对按照 K 分区排序后不断溢写到磁盘文件 
+> 3. MRAppMaster 监控到所有 maptask 进程任务完成之后，会根据客户指定的参数启动相应 数量的 reducetask 进程，并告知 reducetask 进程要处理的数据范围（数据分区） 
+> 4. Reducetask 进程启动之后，根据 MRAppMaster 告知的待处理数据所在位置，从若干台 maptask 运行所在机器上获取到若干个 maptask 输出结果文件，并在本地进行重新归并 排序，然后按照相同 key 的 KV 为一个组，调用客户定义的 reduce()方法进行逻辑运算， 并收集运算输出的结果 KV，然后调用客户指定的 outputformat 将结果数据输出到外部存储
 
 # 提交任务流程与 Shuffle 流程
 1. maptask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中 
@@ -97,8 +97,7 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 
 # Hadoop mapreduce切片机制
 ![切片机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%88%87%E7%89%87%E6%9C%BA%E5%88%B6.png)  
-切片机制（将待处理数据执行逻辑切片（即按照一个特定切片大小，将待处理数据划分成逻辑上的多个split，
-         然后每一个split分配一个map(mapTask)并行实例处理　
-         map个数：由任务切片spilt决定的，默认情况下一个split的大小就是block参与任务的文件个数决定的） 
+切片机制（将待处理数据执行逻辑切片（即按照一个特定切片大小，将待处理数据划分成逻辑上的多个split,然后每一个split分配一个map(mapTask)并行实例处理　 
+map个数：由任务切片spilt决定的，默认情况下一个split的大小就是block参与任务的文件个数决定的） 
 
 正常情况下，你不设置切片大小的时候，默认切片与 块 的大小是相同的。  
