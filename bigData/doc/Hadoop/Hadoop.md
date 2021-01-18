@@ -48,20 +48,20 @@ hdfs 的读写流程都离不开 namenode，在 namenode 维护了文件、文�
 ![元数据](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%85%83%E6%95%B0%E6%8D%AE.jpg)  
 cd/soft/data/tmp/dfs/name/current hdfsoev-iedits_0000000000000001913-0000000000000001959-oedits.xml hdfsoiv-ifsimage_0000000000000001972-pXML-ofsimage.xml
 
-当达到某个条件后，secondary namenode 会把 namenode 上保存的 edits 和最新的 fsimage 下载到本地，
-并把这些 edits 和 fsimage 进行合并，产生新的 fsimage，这整个过程把他称作checkpoint。
+当达到某个条件后，secondary namenode 会把 namenode 上保存的 edits 和最新的 fsimage 下载到本地， 
+并把这些 edits 和 fsimage 进行合并，产生新的 fsimage，这整个过程把他称作checkpoint。  
 
 
 
-dfs.namenode.checkpoint.check.period=60#检查触发条件是否满足的频率，60 秒 
-dfs.namenode.checkpoint.dir=file://${hadoop.tmp.dir}/dfs/namesecondary 
-dfs.namenode.checkpoint.edits.dir=${dfs.namenode.checkpoint.dir} #以 上 两 个 参 数 做 checkpoint 操作时，secondarynamenode 的本地工作目录
-dfs.namenode.checkpoint.max-retries=3   #最大重试次数 
-dfs.namenode.checkpoint.period=3600     #两次 checkpoint 之间的时间间隔 3600 秒 
-dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作记录
+dfs.namenode.checkpoint.check.period=60#检查触发条件是否满足的频率，60 秒   
+dfs.namenode.checkpoint.dir=file://${hadoop.tmp.dir}/dfs/namesecondary   
+dfs.namenode.checkpoint.edits.dir=${dfs.namenode.checkpoint.dir}  # 以 上 两 个 参 数 做 checkpoint 操作时，secondarynamenode 的本地工作目录  
+dfs.namenode.checkpoint.max-retries=3   #最大重试次数   
+dfs.namenode.checkpoint.period=3600     #两次 checkpoint 之间的时间间隔 3600 秒   
+dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作记录  
 
 
-1. SecondaryNameNode 会定时的和 NameNode 通信，请求其停止使用 edits 文件，
+1. SecondaryNameNode 会定时的和 NameNode 通信，请求其停止使用 edits 文件， 
    暂时将 新的写操作写到一个新的文件 edits.new 上，这个操作是瞬时完成的，上层的写日志函数完 全感觉不到差别
 2. econdaryNameNode 通过 HTTP 的 get 方法从 NameNode 上获取到 fsimage 和 edits 文件，
    SecondaryNameNode 将 fsimage 文件载入内存中，逐一执行 edits 文件中的事务，创建新的 合并后的 fsimage 文件，
@@ -73,17 +73,19 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 
 # Hadoop mapreduce工作流程
 一个完整的 mapreduce 程序在分布式运行时有三类实例进程： 
-1. MRAppMaster：负责整个程序的过程调度及状态协调 
-2. mapTask：负责 map 阶段的整个数据处理流程
-3. ReduceTask：负责 reduce 阶段的整个数据处理流程
+**MRAppMaster：负责整个程序的过程调度及状态协调**    
+ 
+**mapTask：负责 map 阶段的整个数据处理流程**  
+ 
+**ReduceTask：负责 reduce 阶段的整个数据处理流程**    
 ![job工作机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.jpg)  
->1. 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
->2. maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
->  a).  利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
->  b).  将输入 KV 对传递给客户定义的 map()方法，做逻辑运算，并将 map()方法输出的 KV 对收集到缓存 
->  c).  将缓存中的 KV 对按照 K 分区排序后不断溢写到磁盘文件 
-> 3. MRAppMaster 监控到所有 maptask 进程任务完成之后，会根据客户指定的参数启动相应 数量的 reducetask 进程，并告知 reducetask 进程要处理的数据范围（数据分区） 
-> 4. Reducetask 进程启动之后，根据 MRAppMaster 告知的待处理数据所在位置，从若干台 maptask 运行所在机器上获取到若干个 maptask 输出结果文件，并在本地进行重新归并 排序，然后按照相同 key 的 KV 为一个组，调用客户定义的 reduce()方法进行逻辑运算， 并收集运算输出的结果 KV，然后调用客户指定的 outputformat 将结果数据输出到外部存储
+1. 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
+2. maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
+    a).  利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
+    b).  将输入 KV 对传递给客户定义的 map()方法，做逻辑运算，并将 map()方法输出的 KV 对收集到缓存 
+    c).  将缓存中的 KV 对按照 K 分区排序后不断溢写到磁盘文件 
+ 3. MRAppMaster 监控到所有 maptask 进程任务完成之后，会根据客户指定的参数启动相应 数量的 reducetask 进程，并告知 reducetask 进程要处理的数据范围（数据分区） 
+ 4. Reducetask 进程启动之后，根据 MRAppMaster 告知的待处理数据所在位置，从若干台 maptask 运行所在机器上获取到若干个 maptask 输出结果文件，并在本地进行重新归并 排序，然后按照相同 key 的 KV 为一个组，调用客户定义的 reduce()方法进行逻辑运算， 并收集运算输出的结果 KV，然后调用客户指定的 outputformat 将结果数据输出到外部存储
 
 # 提交任务流程与 Shuffle 流程
 1. maptask 收集我们的 map()方法输出的 kv 对，放到内存缓冲区中 
