@@ -15,7 +15,7 @@ Hadoop的核心组件:
 5.Hdfs适合设计成一次写入多次读取的情况，不支持修改  
 
 # Hadoop写流程
-![HDFS的写数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E5%86%99%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)
+![HDFS的写数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E5%86%99%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)  
 1. 客户端使用 FIleSystem 上传 
 2. FIleSystem 与 namenode 进行通信，nn 会检查自己维护得目录树，判断当前目录是否存 在 
 3. 当 namenode 正确返回后，客户端再向 namenode 请求上传第一个 block,namenode 确认 datanode 的状态，
@@ -29,7 +29,7 @@ Hadoop的核心组件:
 总结：1个block（块，默认128M） 会分成多个packet（包，默认64KB）,会分成多个chunk（默认512b）  
 
 # Hadoop读流程
-![HDFS的读数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E8%AF%BB%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)
+![HDFS的读数据流程](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/HDFS%E7%9A%84%E8%AF%BB%E6%95%B0%E6%8D%AE%E6%B5%81%E7%A8%8B.png)  
 1. client 访问 NameNode，查询元数据信息，获得这个文件的数据块位置列表，返回输入流 对象。 
 2. 就近挑选一台 datanode 服务器，请求建立输入流 
 3. DataNode 向输入流中中写数据，以 packet 为单位 
@@ -45,7 +45,7 @@ hdfs 的读写流程都离不开 namenode，在 namenode 维护了文件、文�
 
 内存的数据=fsimage+edits 文件  
 
-![元数据](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%85%83%E6%95%B0%E6%8D%AE.jpg)
+![元数据](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%85%83%E6%95%B0%E6%8D%AE.jpg)  
 cd/soft/data/tmp/dfs/name/current hdfsoev-iedits_0000000000000001913-0000000000000001959-oedits.xml hdfsoiv-ifsimage_0000000000000001972-pXML-ofsimage.xml
 
 当达到某个条件后，secondary namenode 会把 namenode 上保存的 edits 和最新的 fsimage 下载到本地，
@@ -76,7 +76,7 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 1. MRAppMaster：负责整个程序的过程调度及状态协调 
 2. mapTask：负责 map 阶段的整个数据处理流程
 3. ReduceTask：负责 reduce 阶段的整个数据处理流程
-![job工作机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.jpg)
+![job工作机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6.jpg)  
 1 一个 mr 程序启动的时候，最先启动的是 MRAppMaster，MRAppMaster 启动后根据本次 job 的描述信息，计算出需要的 maptask 实例数量，然后向集群申请机器启动相应数量 的 maptask 进程 （这里先理解成一个文件一个 maptask）
 2、 maptask 进程启动之后，根据给定的数据切片范围进行数据处理，主体流程为：
   a) 利用客户指定的 inputformat 来获取数据，形成输入 K，V 对 
@@ -93,10 +93,10 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 5. reducetask 根据自己的分区号，去各个 maptask 机器上取相应的结果分区数据 
 6. reducetask 会取到同一个分区的来自不同 maptask 的结果文件，reducetask 会将这些 文件再进行合并（归并排序） 
 7. 合并成大文件后，shuffle 的过程也就结束了，后面进入 reducetask 的逻辑运算过程 （从文件中取出一个一个的键值对 group，调用用户自定义的 reduce()方法） 
-8. 缓冲区的大小可以通过参数调整, 参数：[mapreduce.task.io.sort.mb 默认100M](http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-m apreduce-client-core/mapred-default.xml) 
+8. 缓冲区的大小可以通过参数调整, 参数：[mapreduce.task.io.sort.mb 默认100M](http://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml) 
 
 # Hadoop mapreduce切片机制
-![切片机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%88%87%E7%89%87%E6%9C%BA%E5%88%B6.png)
+![切片机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%88%87%E7%89%87%E6%9C%BA%E5%88%B6.png)  
 切片机制（将待处理数据执行逻辑切片（即按照一个特定切片大小，将待处理数据划分成逻辑上的多个split，
          然后每一个split分配一个map(mapTask)并行实例处理　
          map个数：由任务切片spilt决定的，默认情况下一个split的大小就是block参与任务的文件个数决定的） 
