@@ -101,5 +101,10 @@ dfs.namenode.checkpoint.txns=1000000    #两次 checkpoint 之间最大的操作
 # Hadoop mapreduce切片机制
 ![切片机制](https://github.com/qq840093270/study/blob/master/bigData/doc/Hadoop/images/%E5%88%87%E7%89%87%E6%9C%BA%E5%88%B6.png)   
 切片机制（将待处理数据执行逻辑切片（即按照一个特定切片大小，将待处理数据划分成逻辑上的多个split,然后每一个split分配一个map(mapTask)并行实例处理） 
+
 map个数：由任务切片spilt决定的，默认情况下一个split的大小就是block参与任务的文件个数决定的  
-正常情况下，你不设置切片大小的时候，默认切片与 块 的大小是相同的。  
+正常情况下，你不设置切片大小的时候，默认切片与块的大小是相同的。  
+
+
+# 疑难问题解决
+1. [虚拟机安装hadoop本地无法下载问题解决方案](https://blog.csdn.net/qq_17623363/article/details/102008227)
