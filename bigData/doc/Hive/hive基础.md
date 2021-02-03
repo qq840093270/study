@@ -97,12 +97,12 @@ HSQL(Hive SQL)转换成MapReduce程序
 
 ### 文件存储格式
 1. Hive 支持的存储数据的格式主要有：TEXTFILE 、SEQUENCEFILE、ORC、PARQUET
-  + TEXTFILE ：默认格式，数据不做压缩，磁盘开销大，数据解析开销大。
-  + SEQUENCEFILE：SequenceFile是Hadoop API 提供的一种二进制文件，它将数据以的形式序列化到文件中。这种二进制文件内部使用Hadoop 的标准的Writable 接口实现序列化和反序列化。
-  + ORC ：数据按行分块 每块按照列存储 ，压缩快 快速列存取，效率比rcfile高,是rcfile的改良版本，相比RC能够更好的压缩，能够更快的查询，但还是不支持模式演进。
-  + PARQUET ： Parquet能够很好的压缩，有很好的查询性能，支持有限的模式演进。但是写速度通常比较慢。这中文件格式主要是用在Cloudera Impala上面的
-**未启用压缩，存储效率的对比总结： ORC >	Parquet >	textFile**  
-**hive 表的数据存储格式一般选择：orc 或 parquet。压缩方式一 般选择 snappy，lzo。**  
+  1. TEXTFILE ：默认格式，数据不做压缩，磁盘开销大，数据解析开销大。
+  2. SEQUENCEFILE：SequenceFile是Hadoop API 提供的一种二进制文件，它将数据以的形式序列化到文件中。这种二进制文件内部使用Hadoop 的标准的Writable 接口实现序列化和反序列化。
+  3. ORC ：数据按行分块 每块按照列存储 ，压缩快 快速列存取，效率比rcfile高,是rcfile的改良版本，相比RC能够更好的压缩，能够更快的查询，但还是不支持模式演进。
+  4. PARQUET ： Parquet能够很好的压缩，有很好的查询性能，支持有限的模式演进。但是写速度通常比较慢。这中文件格式主要是用在Cloudera Impala上面的  
+  >**未启用压缩，存储效率的对比总结： ORC >	Parquet >textFile**  
+  >**hive 表的数据存储格式一般选择：orc 或 parquet。压缩方式一 般选择 snappy，lzo。**  
 
 ### hive优化
 1. 使用explain（explain extended）查看sql执行计划
@@ -110,8 +110,8 @@ HSQL(Hive SQL)转换成MapReduce程序
 3. set hive.exec.mode.local.auto = true 数据量较小时，可用这个进行优化查询
 4. set hive.auto.convert.join = true（默认），新版的 hive 已经对小表 JOIN 大表和大表 JOIN 小表进行了优化。小表放 在左边和右边已经没有区别。
 5. Map 阶段同一 Key 数据分发给一个 reduce，当一个 key 数据过大时就倾斜了。
-  + 尽量在Map端做聚合操作 set hive.map.aggr = true 
-  + 对数据量大的key做随机数处理
+   1. 尽量在Map端做聚合操作 set hive.map.aggr = true 
+   2. 对数据量大的key做随机数处理
 
   
 
