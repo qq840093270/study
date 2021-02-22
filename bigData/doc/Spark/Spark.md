@@ -15,7 +15,7 @@ Spark 是一种基于内存的快速、通用、可扩展的大数据分析计�
   - local：只启动一个线程
   - local[k]：启动k个线程
   - local[*]：启动cpu数目的线程
-2. 分布式
+2. 分布式  
 （1）standalone模式：
 
        在架构上和MapReduce1具有一致性，资源抽象为粗粒度的slot，slot决定task。
@@ -24,8 +24,8 @@ Spark 是一种基于内存的快速、通用、可扩展的大数据分析计�
 
        Spark客户端直接连接Yarn，不需要额外构建Spark集群。有yarn-client和yarn-cluster两种模式，主要区别在于：Driver程序的运行节点。
 
-yarn-client：Driver程序运行在客户端，适用于交互、调试，希望立即看到app的输出
-yarn-cluster：Driver程序运行在由RM（ResourceManager）启动的AP（APPMaster）适用于生产环境。
+yarn-client：Driver程序运行在客户端，适用于交互、调试，希望立即看到app的输出  
+yarn-cluster：Driver程序运行在由RM（ResourceManager）启动的AP（APPMaster）适用于生产环境。 
 （3）Spark On Mesos模式。
 
        Mesos也是统一资源管理与调度系统。支持两个模式，即粗粒度模式和细粒度模式，粗粒度节省资源调度时间，细粒度节省资源。
