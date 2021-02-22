@@ -31,3 +31,27 @@ yarn-cluster：Driver程序运行在由RM（ResourceManager）启动的AP（APPM
 （3）Spark On Mesos模式。
 
        Mesos也是统一资源管理与调度系统。支持两个模式，即粗粒度模式和细粒度模式，粗粒度节省资源调度时间，细粒度节省资源。
+
+# RDD
+##  什么是 RDD
+
+    RDD（Resilient Distributed Dataset）叫做弹性分布式数据集，是 Spark 中最基本的数据处理模型。代码中是一个抽象类，它代表一个弹性的、不可变、可分区、里面的元素可并行计算的集合。
+ 
+1. 弹性
+   - 存储的弹性：内存与磁盘的自动切换；
+   - 容错的弹性：数据丢失可以自动恢复；
+   - 计算的弹性：计算出错重试机制；
+   - 分片的弹性：可根据需要重新分片。
+2. 分布式：数据存储在大数据集群不同节点上
+3. 数据集：RDD 封装了计算逻辑，并不保存数据
+4. 数据抽象：RDD 是一个抽象类，需要子类具体实现
+5. 不可变：RDD 封装了计算逻辑，是不可以改变的，想要改变，只能产生新的 RDD，在新的 RDD 里面封装计算逻辑
+6. 可分区、并行计算      
+ 
+## RDD 与 IO 区别
+![Spark 核心模块](https://github.com/qq840093270/study/blob/master/bigData/doc/Spark/images/spark%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97.jpg)
+![Spark 核心模块](https://github.com/qq840093270/study/blob/master/bigData/doc/Spark/images/spark%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97.jpg)
+- RDD的数据处理方式类似IO流,也有装饰者模式
+- RDD的数据只有在调用collect方法时,才会真正执行业务逻辑操作。之前的封装都是功能的扩展
+- RDD是不保存数据的,但是IO可以临时保存一部分数据
+
