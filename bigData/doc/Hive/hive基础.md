@@ -1,6 +1,6 @@
 # 什么是Hive
 
-## hive简介
+ ## hive简介
 Hive: 由Facebook开源解决海量结构化日志的数据统计工具
 Hive: 基于Hadoop的一个数据仓库工具，可以将结构化的数据文件映射为一张表，并提供类SQL查询功能
 ## Hive本质
@@ -104,7 +104,7 @@ HSQL(Hive SQL)转换成MapReduce程序
 >**未启用压缩，存储效率的对比总结： ORC >	Parquet >textFile**  
 >**hive 表的数据存储格式一般选择：orc 或 parquet。压缩方式一 般选择 snappy，lzo。**  
 
-### hive优化
+### hive sql优化
 1. 使用explain（explain extended）查看sql执行计划
 2. set hive.fetch.task.conversion = more（有些函数走MR任务）/none（都会走MR任务）设置是否走MR任务
 3. set hive.exec.mode.local.auto = true 数据量较小时，可用这个进行优化查询
@@ -112,6 +112,17 @@ HSQL(Hive SQL)转换成MapReduce程序
 5. Map 阶段同一 Key 数据分发给一个 reduce，当一个 key 数据过大时就倾斜了。
    1. 尽量在Map端做聚合操作 set hive.map.aggr = true 
    2. 对数据量大的key做随机数处理
+6. 数据量大时，运用group by比用distinct 要快，但要注意数据倾斜
+7. 查询两张表关联，先过滤后join
+8. ![增加map数量](https://github.com/qq840093270/study/blob/master/bigData/doc/Hive/images/.png)
+9. 
+10. 集群资源充足时，可以用并行执行
+     1. set hive.exec.parallel=true;        //打开任务并行执行
+     2. set hive.exec.parallel.thread.number=16;   //同一个 sql 允许最大并行度，默认为8。
+11. JVM重用
+      1.set mapred.job.reuse.jvm.num.tasks 设置成大于1的数。这表示属于同一job的顺序执行的task可以共享一个JVM，也就是说第二轮的map可以重用前一轮的JVM，而不是第一轮结束后关闭JVM，第二轮再启动新的JVM。
+ 
+      
 
   
 
