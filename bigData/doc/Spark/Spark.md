@@ -16,6 +16,7 @@ Spark 是一种基于内存的快速、通用、可扩展的大数据分析计�
   - local[k]：启动k个线程
   - local[*]：启动cpu数目的线程
 2. 分布式  
+
 （1）standalone模式：
 
        在架构上和MapReduce1具有一致性，资源抽象为粗粒度的slot，slot决定task。
